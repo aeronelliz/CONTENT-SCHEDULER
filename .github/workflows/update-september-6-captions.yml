@@ -1,0 +1,27 @@
+name: Update scheduled Facebook captions
+
+on:
+  workflow_dispatch:
+  push:
+    branches: ["main"]
+    paths:
+      - "scripts/update-september-6-captions.js"
+      - ".github/workflows/update-september-6-captions.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  update-captions:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Update seven scheduled captions
+        env:
+          META_PAGE_ID: ${{ secrets.META_PAGE_ID }}
+          META_PAGE_ACCESS_TOKEN: ${{ secrets.META_PAGE_ACCESS_TOKEN }}
+          META_GRAPH_VERSION: v26.0
+        run: node scripts/update-september-6-captions.js
