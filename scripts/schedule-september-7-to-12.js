@@ -3,8 +3,8 @@ import { schedulePhoto } from "../lib/meta.js";
 
 const file = "content/batch-2026-09-07-to-12.json";
 const posts = JSON.parse(await fs.readFile(file, "utf8"));
-const token = process.env.META_PAGE_ACCESS_TOKEN;
-const pageId = process.env.META_PAGE_ID;
+const token = process.env.META_PAGE_ACCESS_TOKEN?.trim();
+const pageId = process.env.META_PAGE_ID?.trim();
 
 if (!token || !pageId) throw new Error("Missing Meta secrets");
 if (posts.length !== 42) throw new Error(`Expected 42 posts, found ${posts.length}`);
@@ -16,8 +16,16 @@ const response = await fetch(endpoint, {
 });
 const page = await response.json();
 
-if (!response.ok || page.id !== pageId || page.name !== "Plot Twist Pinoy") {
-  throw new Error("Page identity check failed");
+if (!response.ok || page.error) {
+  const code = page.error?.code ?? response.status;
+  const type = page.error?.type ?? "Meta API error";
+  throw new Error(`Page identity check failed: ${type} (code ${code})`);
+}
+if (String(page.id) !== pageId) {
+  throw new Error("Page identity check failed: META_PAGE_ID does not match the token");
+}
+if (page.name?.trim().toLowerCase() !== "plot twist pinoy") {
+  throw new Error(`Page identity check failed: connected Page is "${page.name || "unknown"}"`);
 }
 
 let failed = false;
