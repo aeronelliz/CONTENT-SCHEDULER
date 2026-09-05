@@ -33,6 +33,14 @@ jobs:
         uses: actions/checkout@v4
       - name: Setup Pages
         uses: actions/configure-pages@v5
+      - name: Prepare dashboard photos
+        shell: bash
+        run: |
+          mkdir -p public/images
+          for source in content/images/*.png.base64; do
+            target="public/images/$(basename "$source" .base64)"
+            base64 --decode "$source" > "$target"
+          done
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
