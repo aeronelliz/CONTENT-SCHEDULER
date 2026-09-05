@@ -1,0 +1,63 @@
+name: Schedule seven Facebook posts
+
+on:
+  schedule:
+    - cron: "0 16 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: facebook-daily-scheduler
+  cancel-in-progress: false
+
+jobs:
+  schedule:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      TIMEZONE: Asia/Manila
+      META_GRAPH_VERSION: v26.0
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - run: npm ci
+
+      - name: Lock today's batch
+        run: npm run queue:prepare
+
+      - name: Save scheduling lock
+        run: |
+          if ! git diff --quiet -- content/queue.json; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add content/queue.json
+            git commit -m "Lock daily Facebook batch for run $GITHUB_RUN_ID"
+            git push origin main
+          fi
+
+      - name: Schedule through Meta
+        env:
+          META_PAGE_ID: ${{ secrets.META_PAGE_ID }}
+          META_PAGE_ACCESS_TOKEN: ${{ secrets.META_PAGE_ACCESS_TOKEN }}
+        run: npm run queue:publish
+
+      - name: Save Meta results
+        if: always()
+        run: |
+          if ! git diff --quiet -- content/queue.json; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add content/queue.json
+            git commit -m "Save Facebook scheduling results for run $GITHUB_RUN_ID"
+            git push origin main
+          fi
