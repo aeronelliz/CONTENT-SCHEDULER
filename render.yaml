@@ -1,0 +1,35 @@
+services:
+  - type: web
+    name: plot-twist-pinoy-meta-scheduler
+    runtime: docker
+    region: singapore
+    healthCheckPath: /status
+    autoDeployTrigger: commit
+    numInstances: 1
+    envVars:
+      - key: META_APP_ID
+        sync: false
+      - key: META_APP_SECRET
+        sync: false
+      - key: META_PAGE_ID
+        sync: false
+      - key: META_GRAPH_VERSION
+        value: v26.0
+      - key: TOKEN_ENCRYPTION_KEY
+        generateValue: true
+      - key: ADMIN_KEY
+        generateValue: true
+      - key: TIMEZONE
+        value: Asia/Manila
+      - key: DAILY_SCHEDULE_CRON
+        value: 0 0 * * *
+      - key: DAILY_POST_TIMES
+        value: 08:00,10:00,12:00,14:00,16:30,19:00,22:00
+      - key: DATA_DIR
+        value: /var/data/meta-scheduler/data
+      - key: UPLOAD_DIR
+        value: /var/data/meta-scheduler/uploads
+    disk:
+      name: scheduler-storage
+      mountPath: /var/data
+      sizeGB: 1
