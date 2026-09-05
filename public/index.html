@@ -3,34 +3,208 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Plot Twist Pinoy Scheduler</title>
+  <meta name="description" content="Plot Twist Pinoy Facebook content planner">
+  <title>Planner · Plot Twist Pinoy</title>
   <style>
-    :root{color-scheme:dark;--bg:#0d0d0f;--card:#18181d;--ink:#f6f0df;--muted:#aaa49a;--gold:#d8a84e}
-    *{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at top,#2b2418,var(--bg) 38%);font:16px system-ui;color:var(--ink)}
-    main{max-width:760px;margin:48px auto;padding:20px}h1{font-family:Georgia,serif;font-size:42px;margin:0 0 8px}p{color:var(--muted)}
-    .card{background:rgba(24,24,29,.94);border:1px solid #35312a;border-radius:18px;padding:22px;margin-top:20px;box-shadow:0 18px 60px #0007}
-    label{display:block;margin:14px 0 6px}input,textarea,button{width:100%;border-radius:10px;border:1px solid #454039;background:#101013;color:var(--ink);padding:12px}textarea{min-height:180px;resize:vertical}
-    button{margin-top:16px;background:var(--gold);color:#17120a;border:0;font-weight:800;cursor:pointer}.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-    code{color:var(--gold)}#notice{min-height:24px}
+    :root{
+      color-scheme:dark;
+      --bg:#0b0c10;--sidebar:#101116;--panel:#14161d;--panel2:#191b23;
+      --line:#282b35;--line2:#343743;--ink:#f5f6f8;--muted:#9197a6;
+      --accent:#f1b84b;--accent2:#ffcf70;--blue:#5b8cff;--green:#36c78b;
+      --purple:#a77bf3;--red:#f06b6b;--radius:14px;--shadow:0 20px 50px rgba(0,0,0,.28)
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.45 Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;overflow:hidden}
+    button,a,select{font:inherit}
+    button{color:inherit}
+    a{color:inherit;text-decoration:none}
+    .app{height:100vh;display:grid;grid-template-columns:236px minmax(0,1fr)}
+    .sidebar{background:var(--sidebar);border-right:1px solid var(--line);padding:20px 14px;display:flex;flex-direction:column;min-width:0}
+    .brand{display:flex;align-items:center;gap:11px;padding:0 8px 22px}
+    .brand-mark{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;background:linear-gradient(145deg,var(--accent2),#cc8420);color:#17120a;font:800 18px Georgia,serif;box-shadow:0 8px 24px rgba(241,184,75,.18)}
+    .brand strong{display:block;font:700 16px Georgia,serif;letter-spacing:.1px}
+    .brand small{display:block;color:var(--muted);font-size:12px;margin-top:1px}
+    .nav-label{padding:10px 10px 7px;color:#686f7f;text-transform:uppercase;font-weight:800;font-size:11px;letter-spacing:.12em}
+    .nav{display:grid;gap:4px}
+    .nav a{display:flex;align-items:center;gap:12px;min-height:43px;padding:0 12px;border-radius:10px;color:#aeb3bf;font-weight:650}
+    .nav a:hover{background:#191b22;color:var(--ink)}
+    .nav a.active{background:linear-gradient(90deg,rgba(241,184,75,.17),rgba(241,184,75,.05));color:var(--accent2);box-shadow:inset 3px 0 var(--accent)}
+    .nav-icon{width:20px;text-align:center;font-size:16px}
+    .sidebar-foot{margin-top:auto;border-top:1px solid var(--line);padding:16px 8px 0}
+    .account-mini{display:flex;gap:10px;align-items:center}
+    .avatar{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:#29334d;color:#9ab5ff;font-weight:800}
+    .account-mini strong{font-size:13px;display:block}.account-mini small{color:var(--muted);font-size:11px}
+    .main{min-width:0;height:100vh;display:flex;flex-direction:column}
+    .topbar{height:72px;flex:0 0 72px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 24px;background:rgba(11,12,16,.92);backdrop-filter:blur(12px)}
+    .title h1{margin:0;font-size:20px;line-height:1.2}.title p{margin:4px 0 0;color:var(--muted);font-size:12px}
+    .top-actions{display:flex;align-items:center;gap:10px}
+    .account-pill,.btn,.icon-btn,.segmented button,.select{border:1px solid var(--line2);background:var(--panel);border-radius:10px;min-height:38px}
+    .account-pill{display:flex;align-items:center;gap:8px;padding:0 12px;color:#c9cdd6}.fb-dot{width:18px;height:18px;border-radius:6px;background:#1877f2;color:white;display:grid;place-items:center;font-weight:900;font-size:12px}
+    .btn{padding:0 14px;font-weight:750;cursor:pointer}.btn:hover,.icon-btn:hover{border-color:#555a69;background:#1b1e27}.btn.primary{border:0;background:linear-gradient(135deg,var(--accent2),#d99128);color:#17120a;box-shadow:0 9px 26px rgba(241,184,75,.18)}
+    .workspace{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1fr) 310px}
+    .planner{min-width:0;display:flex;flex-direction:column;padding:20px 20px 0}
+    .toolbar{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:15px;flex-wrap:wrap}
+    .date-controls,.view-controls{display:flex;align-items:center;gap:8px}
+    .icon-btn{width:38px;padding:0;display:grid;place-items:center;cursor:pointer}
+    .date-range{min-width:190px;font-weight:800;font-size:15px;padding-left:4px}
+    .today{padding:0 12px}
+    .segmented{display:flex;padding:3px;background:#101218;border:1px solid var(--line);border-radius:12px}
+    .segmented button{min-height:30px;padding:0 12px;background:transparent;border-color:transparent;color:var(--muted);cursor:pointer}
+    .segmented button.active{background:#232630;color:var(--ink);box-shadow:0 2px 8px #0005}
+    .stats{display:flex;gap:8px}.stat{border:1px solid var(--line);background:var(--panel);border-radius:10px;padding:8px 11px;min-width:76px}.stat b{font-size:15px}.stat span{display:block;color:var(--muted);font-size:11px;margin-top:1px}
+    .calendar-shell{flex:1;min-height:0;border:1px solid var(--line);border-bottom:0;border-radius:var(--radius) var(--radius) 0 0;background:var(--panel);overflow:auto;box-shadow:var(--shadow)}
+    .calendar{min-width:930px;display:grid;grid-template-columns:66px repeat(7,minmax(118px,1fr));grid-template-rows:68px repeat(8,92px);position:relative}
+    .corner,.day-head{position:sticky;top:0;z-index:5;background:#15171e;border-bottom:1px solid var(--line)}
+    .corner{left:0;z-index:6;border-right:1px solid var(--line)}
+    .day-head{padding:11px 10px;text-align:center;border-right:1px solid var(--line)}
+    .day-head span{display:block;color:var(--muted);font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.08em}.day-head b{display:inline-grid;place-items:center;width:31px;height:31px;margin-top:4px;font-size:15px}
+    .day-head.selected{background:linear-gradient(180deg,rgba(241,184,75,.09),#15171e)}.day-head.selected b{background:var(--accent);color:#17120a;border-radius:50%}
+    .time{position:sticky;left:0;z-index:3;background:#15171e;border-right:1px solid var(--line);border-bottom:1px solid var(--line);padding:10px 9px;color:#707788;font-size:11px;text-align:right}
+    .cell{position:relative;border-right:1px solid var(--line);border-bottom:1px solid var(--line);padding:6px;background:#14161d}
+    .cell:hover{background:#171922}.cell.today-col{background:rgba(241,184,75,.018)}
+    .post-card{height:100%;border:1px solid #3d4350;border-left:3px solid var(--blue);border-radius:9px;background:linear-gradient(145deg,#222631,#1a1d25);padding:8px;cursor:pointer;overflow:hidden;text-align:left;width:100%;box-shadow:0 5px 14px rgba(0,0,0,.18);transition:transform .15s,border-color .15s}
+    .post-card:hover,.post-card.active{transform:translateY(-1px);border-color:#65718a}.post-card.active{outline:2px solid rgba(91,140,255,.28)}
+    .post-card.green{border-left-color:var(--green)}.post-card.purple{border-left-color:var(--purple)}.post-card.gold{border-left-color:var(--accent)}
+    .post-meta{display:flex;align-items:center;justify-content:space-between;color:#a9afbc;font-size:10px;margin-bottom:5px}.post-meta .channel{width:16px;height:16px;border-radius:5px;background:#1877f2;color:white;display:grid;place-items:center;font-weight:900}
+    .post-card strong{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-size:12px;line-height:1.25;margin-bottom:5px}.status{font-size:10px;color:var(--green);font-weight:800}
+    .inspector{border-left:1px solid var(--line);background:#111319;padding:20px;overflow:auto}
+    .inspector-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}.inspector-head h2{font-size:15px;margin:0}.close-detail{display:none}
+    .preview{aspect-ratio:4/3;border-radius:14px;overflow:hidden;position:relative;background:radial-gradient(circle at 30% 25%,#59627a,#1a1d27 40%,#090a0e);border:1px solid #383c47;display:flex;align-items:flex-end;padding:17px;box-shadow:0 20px 38px #0005}
+    .preview:before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 28%,rgba(0,0,0,.88));pointer-events:none}.preview:after{content:"PLOT TWIST PINOY";position:absolute;top:13px;left:14px;font-size:10px;font-weight:900;letter-spacing:.13em;color:var(--accent2)}
+    .preview-copy{position:relative;z-index:1}.preview-copy small{color:#d7b46c;font-weight:800;text-transform:uppercase;letter-spacing:.08em}.preview-copy h3{font:700 20px/1.05 Georgia,serif;margin:5px 0 0;max-width:220px}
+    .detail-title{font-size:17px;margin:18px 0 4px}.detail-status{display:flex;gap:8px;align-items:center;color:var(--green);font-weight:750;font-size:12px}.detail-status i{width:7px;height:7px;background:var(--green);border-radius:50%}
+    .detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin:17px 0}.detail-box{padding:11px;border:1px solid var(--line);border-radius:10px;background:var(--panel)}.detail-box span{display:block;color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.07em}.detail-box b{display:block;margin-top:3px;font-size:12px}
+    .caption-label{color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.08em;font-weight:800}.caption{color:#c6cad3;font-size:13px;line-height:1.55;margin:7px 0 17px}
+    .workflow-link{display:flex;align-items:center;justify-content:center;min-height:42px;border-radius:10px;background:linear-gradient(135deg,var(--accent2),#d99128);color:#17120a;font-weight:850}.workflow-link:hover{filter:brightness(1.06)}
+    .security-note{display:flex;gap:9px;margin-top:13px;color:#767d8c;font-size:11px;line-height:1.45}.shield{flex:0 0 23px;height:23px;border-radius:7px;background:#1d2930;color:var(--green);display:grid;place-items:center}
+    .mobile-nav{display:none}
+    .toast{position:fixed;left:50%;bottom:24px;z-index:20;transform:translate(-50%,20px);background:#f4f5f7;color:#121318;padding:11px 16px;border-radius:10px;font-weight:700;opacity:0;pointer-events:none;transition:.2s;box-shadow:0 15px 40px #0008}.toast.show{opacity:1;transform:translate(-50%,0)}
+    @media(max-width:1050px){.workspace{grid-template-columns:minmax(0,1fr)}.inspector{position:fixed;right:0;top:0;bottom:0;width:min(360px,92vw);z-index:15;box-shadow:-20px 0 50px #0009;transform:translateX(105%);transition:transform .22s}.inspector.open{transform:translateX(0)}.close-detail{display:grid}.stats{display:none}}
+    @media(max-width:760px){body{overflow:auto}.app{display:block;height:auto;min-height:100vh}.sidebar{display:none}.main{height:auto;min-height:100vh}.topbar{height:auto;min-height:68px;padding:12px 15px;position:sticky;top:0;z-index:10}.title p,.account-pill{display:none}.top-actions{gap:7px}.btn{padding:0 11px}.workspace{display:block}.planner{padding:14px 12px 78px;min-height:calc(100vh - 68px)}.toolbar{align-items:flex-start}.date-range{min-width:152px;font-size:14px}.view-controls{width:100%;justify-content:space-between}.calendar-shell{height:calc(100vh - 196px);border-bottom:1px solid var(--line);border-radius:12px}.calendar{grid-template-columns:58px repeat(7,126px)}.mobile-nav{position:fixed;display:grid;grid-template-columns:repeat(3,1fr);left:12px;right:12px;bottom:10px;height:58px;z-index:12;border:1px solid #353844;border-radius:17px;background:rgba(20,22,29,.94);backdrop-filter:blur(14px);box-shadow:0 14px 42px #000a;padding:5px}.mobile-nav a{display:grid;place-items:center;align-content:center;gap:1px;color:var(--muted);font-size:10px;font-weight:750;border-radius:12px}.mobile-nav a b{font-size:17px;line-height:1}.mobile-nav a.active{color:var(--accent2);background:rgba(241,184,75,.1)}}
   </style>
 </head>
-<body><main>
-  <h1>Plot Twist Pinoy</h1><p>Direct Meta photo-post scheduler</p>
-  <section class="card">
-    <label>Admin key</label><input id="key" type="password" autocomplete="off">
-    <button id="connect">Connect Facebook Page</button>
-  </section>
-  <form class="card" id="postForm">
-    <div class="row"><div><label>Publish date and time</label><input name="publishAt" type="datetime-local" required></div><div><label>Poster image</label><input name="image" type="file" accept="image/*" required></div></div>
-    <label>Caption</label><textarea name="text" required></textarea>
-    <button>Add to queue</button>
-  </form>
-  <section class="card"><button id="schedule">Send queued posts to Meta</button><p id="notice"></p></section>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand"><div class="brand-mark">P</div><div><strong>Plot Twist Pinoy</strong><small>Content workspace</small></div></div>
+      <div class="nav-label">Publish</div>
+      <nav class="nav" aria-label="Primary">
+        <a class="active" href="#planner"><span class="nav-icon">▦</span>Planner</a>
+        <a href="#scheduled" data-toast="Your scheduled posts are displayed in the planner."><span class="nav-icon">◷</span>Scheduled</a>
+        <a href="#library" data-toast="Media library can be added in the next version."><span class="nav-icon">▣</span>Content library</a>
+      </nav>
+      <div class="nav-label">Performance</div>
+      <nav class="nav" aria-label="Performance">
+        <a href="#analytics" data-toast="Analytics will require a secure data sync."><span class="nav-icon">↗</span>Analytics</a>
+      </nav>
+      <div class="sidebar-foot"><div class="account-mini"><div class="avatar">PT</div><div><strong>Plot Twist Pinoy</strong><small>Facebook Page</small></div></div></div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div class="title"><h1>Content Planner</h1><p>Plan and review your Facebook photo stories</p></div>
+        <div class="top-actions">
+          <div class="account-pill"><span class="fb-dot">f</span>Plot Twist Pinoy</div>
+          <a class="btn primary" href="https://github.com/aeronelliz/CONTENT-SCHEDULER/actions/workflows/schedule-facebook.yml" target="_blank" rel="noopener">＋ Schedule posts</a>
+        </div>
+      </header>
+
+      <div class="workspace">
+        <section class="planner" id="planner">
+          <div class="toolbar">
+            <div class="date-controls">
+              <button class="icon-btn" id="prevWeek" aria-label="Previous week">‹</button>
+              <button class="btn today" id="today">Today</button>
+              <button class="icon-btn" id="nextWeek" aria-label="Next week">›</button>
+              <div class="date-range" id="dateRange">Sep 1 – 7, 2026</div>
+            </div>
+            <div class="view-controls">
+              <div class="stats"><div class="stat"><b>7</b><span>Scheduled</span></div><div class="stat"><b>7/day</b><span>Frequency</span></div></div>
+              <div class="segmented" aria-label="Calendar view"><button data-view="month">Month</button><button class="active" data-view="week">Week</button></div>
+            </div>
+          </div>
+
+          <div class="calendar-shell" aria-label="Weekly content calendar">
+            <div class="calendar" id="calendar"></div>
+          </div>
+        </section>
+
+        <aside class="inspector" id="inspector" aria-label="Post details">
+          <div class="inspector-head"><h2>Post details</h2><button class="icon-btn close-detail" id="closeDetail" aria-label="Close details">×</button></div>
+          <div class="preview" id="preview"><div class="preview-copy"><small>Mystery</small><h3 id="previewTitle">The Luna Mystery</h3></div></div>
+          <h3 class="detail-title" id="detailTitle">The Luna Mystery</h3>
+          <div class="detail-status"><i></i>Scheduled on Meta</div>
+          <div class="detail-grid">
+            <div class="detail-box"><span>Publish time</span><b id="detailTime">8:00 AM</b></div>
+            <div class="detail-box"><span>Timezone</span><b>Asia/Manila</b></div>
+            <div class="detail-box"><span>Channel</span><b>Facebook</b></div>
+            <div class="detail-box"><span>Format</span><b>Photo + caption</b></div>
+          </div>
+          <div class="caption-label">Story angle</div><p class="caption" id="detailCaption">A Philippine mystery presented with a strong curiosity hook and a factual, non-graphic visual treatment.</p>
+          <a class="workflow-link" href="https://github.com/aeronelliz/CONTENT-SCHEDULER/actions/workflows/schedule-facebook.yml" target="_blank" rel="noopener">Open scheduler in GitHub ↗</a>
+          <div class="security-note"><span class="shield">✓</span><span>Your Meta token stays inside GitHub Actions and is never loaded by this public dashboard.</span></div>
+        </aside>
+      </div>
+    </main>
+  </div>
+
+  <nav class="mobile-nav" aria-label="Mobile navigation">
+    <a class="active" href="#planner"><b>▦</b>Planner</a>
+    <a href="#scheduled" data-toast="Scheduled posts are shown above."><b>◷</b>Scheduled</a>
+    <a href="https://github.com/aeronelliz/CONTENT-SCHEDULER/actions/workflows/schedule-facebook.yml" target="_blank" rel="noopener"><b>＋</b>Schedule</a>
+  </nav>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
   <script>
-    const key=()=>document.querySelector('#key').value;
-    const notice=(text)=>document.querySelector('#notice').textContent=text;
-    document.querySelector('#connect').onclick=async()=>{const r=await fetch('/api/connect',{method:'POST',headers:{'x-admin-key':key()}});const j=await r.json();if(r.ok)location.href=j.url;else notice(j.error)};
-    document.querySelector('#postForm').onsubmit=async(e)=>{e.preventDefault();const body=new FormData(e.target);const raw=body.get('publishAt');body.set('publishAt',`${raw}:00+08:00`);const r=await fetch('/api/queue',{method:'POST',headers:{'x-admin-key':key()},body});const j=await r.json();notice(r.ok?'Post added to queue':j.error)};
-    document.querySelector('#schedule').onclick=async()=>{const r=await fetch('/api/schedule',{method:'POST',headers:{'x-admin-key':key()}});const j=await r.json();notice(r.ok?`${j.scheduled} post(s) scheduled`:j.error)};
+    const posts=[
+      {time:'8:00 AM',hour:8,title:'The Luna Mystery',type:'Philippine mystery',caption:'A Philippine mystery presented with a strong curiosity hook and a factual, non-graphic visual treatment.',color:'gold'},
+      {time:'10:00 AM',hour:10,title:'The Bonifacio Mystery',type:'Philippine history',caption:'The unanswered questions surrounding one of the most controversial chapters in Philippine history.',color:'purple'},
+      {time:'12:00 PM',hour:12,title:'The Manila Film Center',type:'Philippine mystery',caption:'What happened during the rushed construction of the Manila Film Center, and why the story still haunts public memory.',color:''},
+      {time:'2:00 PM',hour:14,title:'The Doña Paz Tragedy',type:'True story',caption:'A careful, non-graphic account of the events and unanswered questions connected to the Doña Paz disaster.',color:'green'},
+      {time:'4:00 PM',hour:16,title:'The D.B. Cooper Case',type:'Global mystery',caption:'The skyjacker who vanished without a confirmed identity, leaving behind one of the world’s enduring mysteries.',color:'purple'},
+      {time:'6:00 PM',hour:18,title:'The Mary Celeste',type:'Global mystery',caption:'A ship found adrift with its crew missing and no single explanation that settles every question.',color:''},
+      {time:'8:00 PM',hour:20,title:'The Gardner Museum Heist',type:'True crime',caption:'A historic art theft, empty frames, and a mystery that remains unresolved decades later.',color:'gold'}
+    ];
+    const calendar=document.querySelector('#calendar');
+    const days=['Tue','Wed','Thu','Fri','Sat','Sun','Mon'];
+    const dates=[1,2,3,4,5,6,7];
+    const hours=[8,10,12,14,16,18,20,22];
+    calendar.insertAdjacentHTML('beforeend','<div class="corner"></div>');
+    days.forEach((day,i)=>calendar.insertAdjacentHTML('beforeend',`<div class="day-head ${dates[i]===6?'selected':''}"><span>${day}</span><b>${dates[i]}</b></div>`));
+    hours.forEach(hour=>{
+      const label=hour===12?'12 PM':hour>12?`${hour-12} PM`:`${hour} AM`;
+      calendar.insertAdjacentHTML('beforeend',`<div class="time">${label}</div>`);
+      dates.forEach(date=>{
+        const post=date===6?posts.find(item=>item.hour===hour):null;
+        const card=post?`<button class="post-card ${post.color}" data-index="${posts.indexOf(post)}"><span class="post-meta"><span>${post.time}</span><span class="channel">f</span></span><strong>${post.title}</strong><span class="status">● Scheduled</span></button>`:'';
+        calendar.insertAdjacentHTML('beforeend',`<div class="cell ${date===6?'today-col':''}">${card}</div>`);
+      });
+    });
+    const inspector=document.querySelector('#inspector');
+    function showPost(index){
+      const post=posts[index];
+      document.querySelectorAll('.post-card').forEach(card=>card.classList.toggle('active',Number(card.dataset.index)===index));
+      document.querySelector('#previewTitle').textContent=post.title;
+      document.querySelector('#detailTitle').textContent=post.title;
+      document.querySelector('#detailTime').textContent=`Sep 6, ${post.time}`;
+      document.querySelector('#detailCaption').textContent=post.caption;
+      document.querySelector('#preview small').textContent=post.type;
+      inspector.classList.add('open');
+    }
+    document.querySelectorAll('.post-card').forEach(card=>card.addEventListener('click',()=>showPost(Number(card.dataset.index))));
+    document.querySelector('#closeDetail').addEventListener('click',()=>inspector.classList.remove('open'));
+    document.querySelector('#today').addEventListener('click',()=>{document.querySelector('.selected').scrollIntoView({behavior:'smooth',inline:'center',block:'nearest'});showToast('Showing the scheduled week in Philippine time.');});
+    document.querySelector('#prevWeek').addEventListener('click',()=>showToast('Previous weeks can be connected to your content archive later.'));
+    document.querySelector('#nextWeek').addEventListener('click',()=>showToast('Next week has no synced posts yet.'));
+    document.querySelectorAll('.segmented button').forEach(button=>button.addEventListener('click',()=>{
+      if(button.dataset.view==='month')showToast('Month view can be added after the planner data sync.');
+      else document.querySelectorAll('.segmented button').forEach(item=>item.classList.toggle('active',item===button));
+    }));
+    let toastTimer;
+    function showToast(message){const toast=document.querySelector('#toast');toast.textContent=message;toast.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>toast.classList.remove('show'),2600)}
+    document.querySelectorAll('[data-toast]').forEach(link=>link.addEventListener('click',event=>{event.preventDefault();showToast(link.dataset.toast)}));
+    showPost(0);
   </script>
-</main></body></html>
+</body>
+</html>
