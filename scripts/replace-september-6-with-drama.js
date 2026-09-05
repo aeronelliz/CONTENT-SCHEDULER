@@ -21,12 +21,30 @@ const page = await identityResponse.json();
 if (!identityResponse.ok || page.error) {
   throw new Error(`Meta connection failed: ${page.error?.message || `HTTP ${identityResponse.status}`}`);
 }
+let pageToken = token;
+let pageName = page.name;
 if (String(page.id) !== String(pageId)) {
-  throw new Error("The access token does not belong to META_PAGE_ID");
+  const accountsUrl = new URL(`https://graph.facebook.com/${version}/me/accounts`);
+  accountsUrl.searchParams.set("fields", "id,name,access_token,tasks");
+  const accountsResponse = await fetch(accountsUrl, {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+  const accounts = await accountsResponse.json();
+  if (!accountsResponse.ok || accounts.error) {
+    throw new Error(`Could not resolve Page access: ${accounts.error?.message || `HTTP ${accountsResponse.status}`}`);
+  }
+  const selectedPage = accounts.data?.find((item) => String(item.id) === String(pageId));
+  if (!selectedPage?.access_token) {
+    throw new Error("Plot Twist Pinoy was not returned by the configured Facebook account");
+  }
+  pageToken = selectedPage.access_token;
+  pageName = selectedPage.name;
 }
-console.log("META_PAGE_VERIFIED", page.name);
+console.log("META_PAGE_VERIFIED", pageName);
 
-const redact = (message) => String(message).split(token).join("[REDACTED]");
+const redact = (message) => String(message)
+  .split(token).join("[REDACTED]")
+  .split(pageToken).join("[REDACTED]");
 const saveOld = () => fs.writeFile(oldFile, `${JSON.stringify(oldPosts, null, 2)}\n`);
 const saveNew = () => fs.writeFile(newFile, `${JSON.stringify(newPosts, null, 2)}\n`);
 
@@ -38,7 +56,7 @@ for (const item of oldPosts) {
   try {
     const response = await fetch(`https://graph.facebook.com/${version}/${encodeURIComponent(item.metaPostId)}`, {
       method: "DELETE",
-      headers: { Authorization: `Bearer ${token}` }
+      headers: { Authorization: `Bearer ${pageToken}` }
     });
     const payload = await response.json();
     if (!response.ok || payload.error || payload.success !== true) {
@@ -65,7 +83,7 @@ for (const item of newPosts) {
   item.status = "submitting";
   await saveNew();
   try {
-    const result = await schedulePhoto({ pageId, pageToken: token, ...item });
+    const result = await schedulePhoto({ pageId, pageToken, ...item });
     item.metaPostId = result.post_id || result.id;
     item.status = "scheduled";
     item.scheduledAt = new Date().toISOString();
