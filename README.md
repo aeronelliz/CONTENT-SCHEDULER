@@ -2,21 +2,35 @@
 
 A private Node.js service that schedules photo posts directly to the Plot Twist Pinoy Facebook Page through the Meta Graph API. It does not use Metricool.
 
-## Recommended: deploy on Render
+## Recommended: free GitHub Actions scheduler
 
-The repository includes `render.yaml`, which creates one Docker web service in Render's Singapore region with a 1 GB persistent disk, health checks, generated security keys, and Philippine-time scheduling.
+The repository includes `.github/workflows/schedule-facebook.yml`. It runs daily at 16:00 UTC, which is 12:00 AM the following day in the Philippines.
 
-1. Create a private GitHub repository and upload this project to its root.
-2. In Render, choose **New > Blueprint** and connect that repository.
-3. Enter `META_APP_ID`, `META_APP_SECRET`, and `META_PAGE_ID` when Render prompts for secret values.
-4. Create the Blueprint and wait for the health check to pass.
-5. Copy the resulting `https://...onrender.com` address.
-6. In Meta for Developers, add this OAuth redirect URI exactly:
-   `https://YOUR-SERVICE.onrender.com/auth/meta/callback`
-7. Open the Render service's Environment page and copy the generated `ADMIN_KEY` value.
-8. Open the service URL, enter `ADMIN_KEY`, and connect Plot Twist Pinoy.
+### One-time setup
 
-The persistent disk requires a paid Render web-service plan. This is intentional: a free service can suspend when idle and is unsuitable for a midnight scheduler. Render supplies `RENDER_EXTERNAL_HOSTNAME`, so `APP_BASE_URL` does not need to be entered manually.
+In **GitHub > CONTENT-SCHEDULER > Settings > Secrets and variables > Actions**, create these repository secrets:
+
+- `META_PAGE_ID`
+- `META_PAGE_ACCESS_TOKEN`
+
+Never put the token in `queue.json`, `.env`, a commit, an issue, or ChatGPT.
+
+### Add each day's seven posts
+
+1. Put poster images in `content/images/`, or use public HTTPS image URLs.
+2. Add exactly seven entries for the target Philippine date to `content/queue.json`.
+3. Use the ISO format `YYYY-MM-DDTHH:MM:SS+08:00` for `publishAt`.
+4. Leave each new entry's `status` as `queued`.
+
+At midnight, the workflow first commits a processing lock. It then schedules each photo through Meta and commits the resulting Meta post ID or error. This lock prevents an automatic rerun from duplicating a batch.
+
+You can test it using **Actions > Schedule seven Facebook posts > Run workflow** after the seven entries and secrets are ready.
+
+GitHub's scheduled workflow start time can be delayed during heavy demand. This does not change the Facebook publishing times because the workflow sends each post's future `publishAt` time to Meta.
+
+## Optional paid hosting
+
+The Docker, VPS, and Render files remain available if you later want a web dashboard. They are not required for the free GitHub Actions scheduler.
 
 ## What it does
 
