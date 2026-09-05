@@ -41,6 +41,7 @@ jobs:
             target="public/images/$(basename "$source" .base64)"
             base64 --decode "$source" > "$target"
           done
+          cp content/images/*.jpg public/images/
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
