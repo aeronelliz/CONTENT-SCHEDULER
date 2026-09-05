@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "start": "node server.js",
-    "check": "node --check server.js && node --check lib/meta.js && node --check lib/store.js && node --check scripts/prepare-queue.js && node --check scripts/publish-queue.js",
+    "check": "node --check server.js && node --check lib/meta.js && node --check lib/store.js && node --check scripts/prepare-queue.js && node --check scripts/publish-queue.js && node --check scripts/test-meta-connection.js",
+    "test:meta": "node scripts/test-meta-connection.js",
     "queue:prepare": "node scripts/prepare-queue.js",
     "queue:publish": "node scripts/publish-queue.js"
   },
