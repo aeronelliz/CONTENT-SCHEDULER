@@ -1,14 +1,28 @@
 import fs from "node:fs/promises";
-import { schedulePhoto } from "../lib/meta.js";
+import { resolvePage, schedulePhoto } from "../lib/meta.js";
 
 const batchFile = new URL("../content/batch-2026-09-08-12-drama.json", import.meta.url);
 const queueFile = new URL("../content/queue.json", import.meta.url);
 const plannerFile = new URL("../public/planner-data.json", import.meta.url);
-const pageId = process.env.META_PAGE_ID;
-const pageToken = process.env.META_PAGE_ACCESS_TOKEN;
+const configuredPageId = process.env.META_PAGE_ID;
+const configuredToken = process.env.META_PAGE_ACCESS_TOKEN;
 
-if (!pageId) throw new Error("META_PAGE_ID is required");
-if (!pageToken) throw new Error("META_PAGE_ACCESS_TOKEN is required");
+if (!configuredPageId) throw new Error("META_PAGE_ID is required");
+if (!configuredToken) throw new Error("META_PAGE_ACCESS_TOKEN is required");
+
+let pageId = configuredPageId;
+let pageToken = configuredToken;
+let resolvedPageToken = false;
+
+try {
+  const page = await resolvePage(configuredToken);
+  pageId = page.pageId;
+  pageToken = page.pageToken;
+  resolvedPageToken = true;
+  console.log(`Resolved ${page.pageName} as Page ${page.pageId}.`);
+} catch (error) {
+  console.log(`Page-token auto-resolution was unavailable; using the configured token directly. ${error.message}`);
+}
 
 const batch = JSON.parse(await fs.readFile(batchFile, "utf8"));
 const queue = JSON.parse(await fs.readFile(queueFile, "utf8"));
@@ -56,8 +70,8 @@ for (const item of batch) {
     delete item.failedAt;
     console.log(`Scheduled ${item.id} as ${item.metaPostId}.`);
   } catch (error) {
-    const tokenExpired = /access token|session has expired/i.test(error.message);
-    item.status = tokenExpired ? "queued" : "error";
+    const credentialError = /access token|session has expired|posted to a page as the page itself/i.test(error.message);
+    item.status = credentialError ? "queued" : "error";
     item.error = error.message;
     item.failedAt = new Date().toISOString();
     failures += 1;
@@ -77,8 +91,11 @@ for (const item of batch) {
   else delete plannerItem.error;
 
   await saveState();
-  if (item.status === "queued" && /access token|session has expired/i.test(item.error || "")) {
-    throw new Error("Meta access token is expired. Remaining posts were left queued; refresh the GitHub secret before rerunning.");
+  if (item.status === "queued") {
+    const guidance = resolvedPageToken
+      ? "Refresh the GitHub Meta secrets before rerunning."
+      : "Use a Page access token, or a user token with pages_show_list and pages_manage_posts, in META_PAGE_ACCESS_TOKEN.";
+    throw new Error(`Meta credentials cannot schedule Page posts. Remaining posts were left queued. ${guidance}`);
   }
 }
 
