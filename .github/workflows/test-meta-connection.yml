@@ -1,0 +1,31 @@
+name: Test Meta connection
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - ".github/meta-connection-test-trigger"
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - run: npm ci
+
+      - name: Test private Meta connection
+        env:
+          META_PAGE_ID: ${{ secrets.META_PAGE_ID }}
+          META_PAGE_ACCESS_TOKEN: ${{ secrets.META_PAGE_ACCESS_TOKEN }}
+          META_GRAPH_VERSION: v26.0
+        run: npm run test:meta
