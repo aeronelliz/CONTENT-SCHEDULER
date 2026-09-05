@@ -5,7 +5,7 @@ const graphVersion = process.env.META_GRAPH_VERSION || "v26.0";
 if (!pageId) throw new Error("META_PAGE_ID is missing");
 if (!pageToken) throw new Error("META_PAGE_ACCESS_TOKEN is missing");
 
-const endpoint = new URL(`https://graph.facebook.com/${graphVersion}/${encodeURIComponent(pageId)}`);
+const endpoint = new URL(`https://graph.facebook.com/${graphVersion}/me`);
 endpoint.searchParams.set("fields", "id,name");
 endpoint.searchParams.set("access_token", pageToken);
 
@@ -18,7 +18,7 @@ if (!response.ok || result.error) {
 }
 
 if (String(result.id) !== String(pageId)) {
-  throw new Error("Meta returned a different Page ID");
+  throw new Error("The access token does not belong to META_PAGE_ID. Create a Page access token, not a personal user token");
 }
 
 console.log(`Connection verified for Facebook Page: ${result.name} (${result.id})`);
