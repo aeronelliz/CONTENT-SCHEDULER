@@ -63,7 +63,7 @@
     .time{position:sticky;left:0;z-index:3;background:#15171e;border-right:1px solid var(--line);border-bottom:1px solid var(--line);padding:10px 9px;color:#707788;font-size:11px;text-align:right}
     .cell{position:relative;border-right:1px solid var(--line);border-bottom:1px solid var(--line);padding:6px;background:#14161d}
     .cell:hover{background:#171922}.cell.today-col{background:rgba(241,184,75,.018)}
-    .post-card{height:100%;border:1px solid #3d4350;border-left:3px solid var(--blue);border-radius:9px;background:linear-gradient(145deg,#222631,#1a1d25);padding:8px;cursor:pointer;overflow:hidden;text-align:left;width:100%;box-shadow:0 5px 14px rgba(0,0,0,.18);transition:transform .15s,border-color .15s}
+    .post-card{height:100%;border:1px solid #3d4350;border-left:3px solid var(--blue);border-radius:9px;background-image:linear-gradient(90deg,rgba(12,14,19,.96) 0%,rgba(12,14,19,.84) 58%,rgba(12,14,19,.34) 100%),var(--thumb);background-size:cover;background-position:center;padding:8px;cursor:pointer;overflow:hidden;text-align:left;width:100%;box-shadow:0 5px 14px rgba(0,0,0,.18);transition:transform .15s,border-color .15s}
     .post-card:hover,.post-card.active{transform:translateY(-1px);border-color:#65718a}.post-card.active{outline:2px solid rgba(91,140,255,.28)}
     .post-card.green{border-left-color:var(--green)}.post-card.purple{border-left-color:var(--purple)}.post-card.gold{border-left-color:var(--accent)}
     .post-meta{display:flex;align-items:center;justify-content:space-between;color:#a9afbc;font-size:10px;margin-bottom:5px}.post-meta .channel{width:16px;height:16px;border-radius:5px;background:#1877f2;color:white;display:grid;place-items:center;font-weight:900}
@@ -71,7 +71,7 @@
     .inspector{border-left:1px solid var(--line);background:#111319;padding:20px;overflow:auto}
     .inspector-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}.inspector-head h2{font-size:15px;margin:0}.close-detail{display:none}
     .preview{aspect-ratio:4/3;border-radius:14px;overflow:hidden;position:relative;background:radial-gradient(circle at 30% 25%,#59627a,#1a1d27 40%,#090a0e);border:1px solid #383c47;display:flex;align-items:flex-end;padding:17px;box-shadow:0 20px 38px #0005}
-    .preview:before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 28%,rgba(0,0,0,.88));pointer-events:none}.preview:after{content:"PLOT TWIST PINOY";position:absolute;top:13px;left:14px;font-size:10px;font-weight:900;letter-spacing:.13em;color:var(--accent2)}
+    .preview img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}.preview:before{content:"";position:absolute;z-index:1;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.06) 20%,rgba(0,0,0,.9));pointer-events:none}.preview:after{content:"PLOT TWIST PINOY";position:absolute;z-index:2;top:13px;left:14px;font-size:10px;font-weight:900;letter-spacing:.13em;color:var(--accent2);text-shadow:0 2px 8px #000}
     .preview-copy{position:relative;z-index:1}.preview-copy small{color:#d7b46c;font-weight:800;text-transform:uppercase;letter-spacing:.08em}.preview-copy h3{font:700 20px/1.05 Georgia,serif;margin:5px 0 0;max-width:220px}
     .detail-title{font-size:17px;margin:18px 0 4px}.detail-status{display:flex;gap:8px;align-items:center;color:var(--green);font-weight:750;font-size:12px}.detail-status i{width:7px;height:7px;background:var(--green);border-radius:50%}
     .detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin:17px 0}.detail-box{padding:11px;border:1px solid var(--line);border-radius:10px;background:var(--panel)}.detail-box span{display:block;color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.07em}.detail-box b{display:block;margin-top:3px;font-size:12px}
@@ -132,7 +132,7 @@
 
         <aside class="inspector" id="inspector" aria-label="Post details">
           <div class="inspector-head"><h2>Post details</h2><button class="icon-btn close-detail" id="closeDetail" aria-label="Close details">×</button></div>
-          <div class="preview" id="preview"><div class="preview-copy"><small>Mystery</small><h3 id="previewTitle">The Luna Mystery</h3></div></div>
+          <div class="preview" id="preview"><img id="previewImage" src="images/2026-09-06-luna.png" alt="Poster for The Luna Mystery"><div class="preview-copy"><small>Mystery</small><h3 id="previewTitle">The Luna Mystery</h3></div></div>
           <h3 class="detail-title" id="detailTitle">The Luna Mystery</h3>
           <div class="detail-status"><i></i>Scheduled on Meta</div>
           <div class="detail-grid">
@@ -158,13 +158,13 @@
 
   <script>
     const posts=[
-      {time:'8:00 AM',hour:8,title:'The Luna Mystery',type:'Philippine mystery',caption:'A Philippine mystery presented with a strong curiosity hook and a factual, non-graphic visual treatment.',color:'gold'},
-      {time:'10:00 AM',hour:10,title:'The Bonifacio Mystery',type:'Philippine history',caption:'The unanswered questions surrounding one of the most controversial chapters in Philippine history.',color:'purple'},
-      {time:'12:00 PM',hour:12,title:'The Manila Film Center',type:'Philippine mystery',caption:'What happened during the rushed construction of the Manila Film Center, and why the story still haunts public memory.',color:''},
-      {time:'2:00 PM',hour:14,title:'The Doña Paz Tragedy',type:'True story',caption:'A careful, non-graphic account of the events and unanswered questions connected to the Doña Paz disaster.',color:'green'},
-      {time:'4:00 PM',hour:16,title:'The D.B. Cooper Case',type:'Global mystery',caption:'The skyjacker who vanished without a confirmed identity, leaving behind one of the world’s enduring mysteries.',color:'purple'},
-      {time:'6:00 PM',hour:18,title:'The Mary Celeste',type:'Global mystery',caption:'A ship found adrift with its crew missing and no single explanation that settles every question.',color:''},
-      {time:'8:00 PM',hour:20,title:'The Gardner Museum Heist',type:'True crime',caption:'A historic art theft, empty frames, and a mystery that remains unresolved decades later.',color:'gold'}
+      {time:'8:00 AM',hour:8,title:'The Luna Mystery',type:'Philippine mystery',caption:'A Philippine mystery presented with a strong curiosity hook and a factual, non-graphic visual treatment.',color:'gold',image:'images/2026-09-06-luna.png'},
+      {time:'10:00 AM',hour:10,title:'The Bonifacio Mystery',type:'Philippine history',caption:'The unanswered questions surrounding one of the most controversial chapters in Philippine history.',color:'purple',image:'images/2026-09-06-bonifacio.png'},
+      {time:'12:00 PM',hour:12,title:'The Manila Film Center',type:'Philippine mystery',caption:'What happened during the rushed construction of the Manila Film Center, and why the story still haunts public memory.',color:'',image:'images/2026-09-06-film-center.png'},
+      {time:'2:00 PM',hour:14,title:'The Doña Paz Tragedy',type:'True story',caption:'A careful, non-graphic account of the events and unanswered questions connected to the Doña Paz disaster.',color:'green',image:'images/2026-09-06-dona-paz.png'},
+      {time:'4:00 PM',hour:16,title:'The D.B. Cooper Case',type:'Global mystery',caption:'The skyjacker who vanished without a confirmed identity, leaving behind one of the world’s enduring mysteries.',color:'purple',image:'images/2026-09-06-cooper.png'},
+      {time:'6:00 PM',hour:18,title:'The Mary Celeste',type:'Global mystery',caption:'A ship found adrift with its crew missing and no single explanation that settles every question.',color:'',image:'images/2026-09-06-mary-celeste.png'},
+      {time:'8:00 PM',hour:20,title:'The Gardner Museum Heist',type:'True crime',caption:'A historic art theft, empty frames, and a mystery that remains unresolved decades later.',color:'gold',image:'images/2026-09-06-gardner.png'}
     ];
     const calendar=document.querySelector('#calendar');
     const days=['Tue','Wed','Thu','Fri','Sat','Sun','Mon'];
@@ -177,7 +177,7 @@
       calendar.insertAdjacentHTML('beforeend',`<div class="time">${label}</div>`);
       dates.forEach(date=>{
         const post=date===6?posts.find(item=>item.hour===hour):null;
-        const card=post?`<button class="post-card ${post.color}" data-index="${posts.indexOf(post)}"><span class="post-meta"><span>${post.time}</span><span class="channel">f</span></span><strong>${post.title}</strong><span class="status">● Scheduled</span></button>`:'';
+        const card=post?`<button class="post-card ${post.color}" style="--thumb:url('${post.image}')" data-index="${posts.indexOf(post)}"><span class="post-meta"><span>${post.time}</span><span class="channel">f</span></span><strong>${post.title}</strong><span class="status">● Scheduled</span></button>`:'';
         calendar.insertAdjacentHTML('beforeend',`<div class="cell ${date===6?'today-col':''}">${card}</div>`);
       });
     });
@@ -190,6 +190,8 @@
       document.querySelector('#detailTime').textContent=`Sep 6, ${post.time}`;
       document.querySelector('#detailCaption').textContent=post.caption;
       document.querySelector('#preview small').textContent=post.type;
+      document.querySelector('#previewImage').src=post.image;
+      document.querySelector('#previewImage').alt=`Poster for ${post.title}`;
       inspector.classList.add('open');
     }
     document.querySelectorAll('.post-card').forEach(card=>card.addEventListener('click',()=>showPost(Number(card.dataset.index))));
