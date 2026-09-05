@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Plot Twist Pinoy Scheduler</title>
+  <style>
+    :root{color-scheme:dark;--bg:#0d0d0f;--card:#18181d;--ink:#f6f0df;--muted:#aaa49a;--gold:#d8a84e}
+    *{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at top,#2b2418,var(--bg) 38%);font:16px system-ui;color:var(--ink)}
+    main{max-width:760px;margin:48px auto;padding:20px}h1{font-family:Georgia,serif;font-size:42px;margin:0 0 8px}p{color:var(--muted)}
+    .card{background:rgba(24,24,29,.94);border:1px solid #35312a;border-radius:18px;padding:22px;margin-top:20px;box-shadow:0 18px 60px #0007}
+    label{display:block;margin:14px 0 6px}input,textarea,button{width:100%;border-radius:10px;border:1px solid #454039;background:#101013;color:var(--ink);padding:12px}textarea{min-height:180px;resize:vertical}
+    button{margin-top:16px;background:var(--gold);color:#17120a;border:0;font-weight:800;cursor:pointer}.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    code{color:var(--gold)}#notice{min-height:24px}
+  </style>
+</head>
+<body><main>
+  <h1>Plot Twist Pinoy</h1><p>Direct Meta photo-post scheduler</p>
+  <section class="card">
+    <label>Admin key</label><input id="key" type="password" autocomplete="off">
+    <button id="connect">Connect Facebook Page</button>
+  </section>
+  <form class="card" id="postForm">
+    <div class="row"><div><label>Publish date and time</label><input name="publishAt" type="datetime-local" required></div><div><label>Poster image</label><input name="image" type="file" accept="image/*" required></div></div>
+    <label>Caption</label><textarea name="text" required></textarea>
+    <button>Add to queue</button>
+  </form>
+  <section class="card"><button id="schedule">Send queued posts to Meta</button><p id="notice"></p></section>
+  <script>
+    const key=()=>document.querySelector('#key').value;
+    const notice=(text)=>document.querySelector('#notice').textContent=text;
+    document.querySelector('#connect').onclick=async()=>{const r=await fetch('/api/connect',{method:'POST',headers:{'x-admin-key':key()}});const j=await r.json();if(r.ok)location.href=j.url;else notice(j.error)};
+    document.querySelector('#postForm').onsubmit=async(e)=>{e.preventDefault();const body=new FormData(e.target);const raw=body.get('publishAt');body.set('publishAt',`${raw}:00+08:00`);const r=await fetch('/api/queue',{method:'POST',headers:{'x-admin-key':key()},body});const j=await r.json();notice(r.ok?'Post added to queue':j.error)};
+    document.querySelector('#schedule').onclick=async()=>{const r=await fetch('/api/schedule',{method:'POST',headers:{'x-admin-key':key()}});const j=await r.json();notice(r.ok?`${j.scheduled} post(s) scheduled`:j.error)};
+  </script>
+</main></body></html>
