@@ -56,7 +56,8 @@ for (const item of batch) {
     delete item.failedAt;
     console.log(`Scheduled ${item.id} as ${item.metaPostId}.`);
   } catch (error) {
-    item.status = "error";
+    const tokenExpired = /access token|session has expired/i.test(error.message);
+    item.status = tokenExpired ? "queued" : "error";
     item.error = error.message;
     item.failedAt = new Date().toISOString();
     failures += 1;
@@ -76,6 +77,9 @@ for (const item of batch) {
   else delete plannerItem.error;
 
   await saveState();
+  if (item.status === "queued" && /access token|session has expired/i.test(item.error || "")) {
+    throw new Error("Meta access token is expired. Remaining posts were left queued; refresh the GitHub secret before rerunning.");
+  }
 }
 
 const scheduled = batch.filter((item) => item.status === "scheduled").length;
