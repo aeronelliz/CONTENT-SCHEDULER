@@ -46,10 +46,10 @@ jobs:
         if: always()
         run: |
           if ! git diff --quiet -- content/batch-2026-09-06.json content/batch-2026-09-06-drama.json; then
-            git pull --rebase origin main
             git config user.name "github-actions[bot]"
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
             git add content/batch-2026-09-06.json content/batch-2026-09-06-drama.json
             git commit -m "Save September 6 drama replacement results"
+            git pull --rebase origin main
             git push origin main
           fi
