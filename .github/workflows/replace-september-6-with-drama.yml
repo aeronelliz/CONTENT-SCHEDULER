@@ -28,13 +28,14 @@ jobs:
       - run: npm ci
       - name: Reserve replacement batch
         run: |
-          test ! -f content/batch-2026-09-06-drama.started
-          touch content/batch-2026-09-06-drama.started
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add content/batch-2026-09-06-drama.started
-          git commit -m "Reserve September 6 drama replacement"
-          git push origin main
+          if [ ! -f content/batch-2026-09-06-drama.started ]; then
+            touch content/batch-2026-09-06-drama.started
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add content/batch-2026-09-06-drama.started
+            git commit -m "Reserve September 6 drama replacement"
+            git push origin main
+          fi
       - name: Cancel old posts and schedule seven dramas
         env:
           META_PAGE_ID: ${{ secrets.META_PAGE_ID }}

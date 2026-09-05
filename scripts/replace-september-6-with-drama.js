@@ -18,9 +18,13 @@ const identityResponse = await fetch(identityUrl, {
   headers: { Authorization: `Bearer ${token}` }
 });
 const page = await identityResponse.json();
-if (!identityResponse.ok || page.id !== pageId || page.name !== "Plot Twist Pinoy") {
-  throw new Error("Page identity check failed");
+if (!identityResponse.ok || page.error) {
+  throw new Error(`Meta connection failed: ${page.error?.message || `HTTP ${identityResponse.status}`}`);
 }
+if (String(page.id) !== String(pageId)) {
+  throw new Error("The access token does not belong to META_PAGE_ID");
+}
+console.log("META_PAGE_VERIFIED", page.name);
 
 const redact = (message) => String(message).split(token).join("[REDACTED]");
 const saveOld = () => fs.writeFile(oldFile, `${JSON.stringify(oldPosts, null, 2)}\n`);
