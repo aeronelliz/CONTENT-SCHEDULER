@@ -7,8 +7,6 @@ const pageId = process.env.META_PAGE_ID;
 const pageToken = process.env.META_PAGE_ACCESS_TOKEN;
 
 if (!runId) throw new Error("GITHUB_RUN_ID is required");
-if (!pageId) throw new Error("META_PAGE_ID is required");
-if (!pageToken) throw new Error("META_PAGE_ACCESS_TOKEN is required");
 
 const queue = JSON.parse(await fs.readFile(queueFile, "utf8"));
 const batch = queue.filter((item) => item.status === "processing" && item.processingRun === runId);
@@ -17,6 +15,9 @@ if (batch.length === 0) {
   console.log(`No locked posts for run ${runId}.`);
   process.exit(0);
 }
+
+if (!pageId) throw new Error("META_PAGE_ID is required");
+if (!pageToken) throw new Error("META_PAGE_ACCESS_TOKEN is required");
 
 for (const item of batch) {
   try {
