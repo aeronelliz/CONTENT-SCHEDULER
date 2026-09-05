@@ -1,0 +1,47 @@
+name: Schedule September 6 batch
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - ".github/schedule-september-6-trigger"
+permissions:
+  contents: write
+concurrency:
+  group: facebook-daily-scheduler
+  cancel-in-progress: false
+jobs:
+  schedule:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - run: npm ci
+      - name: Reserve this one-off batch to prevent duplicate submissions
+        run: |
+          test ! -f content/batch-2026-09-06.started
+          touch content/batch-2026-09-06.started
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add content/batch-2026-09-06.started
+          git commit -m "Reserve September 6 Meta batch"
+          git push origin main
+      - name: Schedule seven photos through Meta
+        env:
+          META_PAGE_ID: ${{ secrets.META_PAGE_ID }}
+          META_PAGE_ACCESS_TOKEN: ${{ secrets.META_PAGE_ACCESS_TOKEN }}
+        run: node scripts/schedule-september-6.js
+      - name: Save Meta submission results
+        if: always()
+        run: |
+          if ! git diff --quiet -- content/batch-2026-09-06.json; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add content/batch-2026-09-06.json
+            git commit -m "Save September 6 Meta results"
+            git push origin main
+          fi
